@@ -1,6 +1,8 @@
 import express from "express"
 import dotenv from "dotenv"
 import cors from "cors";
+import { connectDB } from "./config/db";
+import authRoutes from "./routes/authRoutes"
 
 dotenv.config()
 
@@ -10,11 +12,15 @@ const PORT = process.env.PORT || 3006;
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth",authRoutes)
 
 app.get("/",(req,res)=>{
     res.send("Hello from root route")
 })
 
-app.listen(PORT,()=>{
-    console.log(`Server started at PORT ${PORT}`)
+connectDB().then(()=>{
+        app.listen(PORT,()=>{
+        console.log(`Server started at PORT ${PORT}`)
+    })
 })
+
