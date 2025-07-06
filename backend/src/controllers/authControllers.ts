@@ -45,8 +45,8 @@ export async function Login(req:Request,res:Response):Promise<any>{
 
         res.status(201).json({
             "msg": "User logged in successfully",
-            "Token: ": token,
-            "User": { id: finduser._id, name: finduser.name, email: finduser.email }
+            "token": token,
+            "user": { id: finduser._id, name: finduser.name, email: finduser.email }
         })
     }
     catch(error){
