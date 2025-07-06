@@ -3,7 +3,7 @@ import "./Board.css"
 import type { Task } from "../types";
 import { getTasks } from "../api/task";
 
-const STATUSES = ["Todo", "In Progress", "Done"] as const;
+const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
 
 export default function Board(){
     const [tasks, setTasks] = useState<Task[]>([])
@@ -22,6 +22,11 @@ export default function Board(){
     },[])
 
   return (
+    <>
+    <div className="topbar">
+        <h2>Real-Time Kanban</h2>
+        <button className="create-btn">+ Create Task</button>
+    </div>
     <div className="board-container">
         {STATUSES.map((status)=>(
             <div key={status} className="board-column">
@@ -31,9 +36,11 @@ export default function Board(){
                         .filter((task) => task.status === status)
                         .map((task)=>(
                             <div key={task._id} className="task-card">
-                                <h4>{task.title}</h4>
-                                <p>{task.description}</p>
-                                <small>Priority: {task.priority}</small>
+                                <div className="task-header">
+                                    <h4>{task.title}</h4>
+                                    <span className={`badge p${task.priority}`}>P{task.priority}</span>
+                                </div>
+                                <p>{task.description}</p>                               
                             </div>
                         ))
                     }
@@ -41,6 +48,7 @@ export default function Board(){
             </div>  
         ))}
     </div>
+    </>
   )
 }
 
