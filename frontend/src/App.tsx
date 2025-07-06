@@ -4,6 +4,7 @@ import './App.css'
 import { useAuth } from './hooks/useAuthContext'
 import { Register } from './pages/Register'
 import Login from './pages/Login'
+import Board from './pages/Board'
 
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/board" element={user ? <h1>Welcome to Board</h1> : <Navigate to="/login" />} />
+        <Route path="/board" element={user ? <Board /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={user ? "/board" : "/login"} />} />
       </Routes>
     </>
