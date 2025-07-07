@@ -83,6 +83,24 @@
   align-items: center;
 }
 
+.task-meta{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.task-meta button{
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.task-meta button:hover {
+  text-decoration: underline;
+}
+
 .badge {
   padding: 2px 8px;
   font-size: 12px;

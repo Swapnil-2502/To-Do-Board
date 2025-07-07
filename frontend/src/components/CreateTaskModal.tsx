@@ -1,19 +1,37 @@
-import { useState } from "react";
-import type { Task } from "../types";
+import { useEffect, useState } from "react";
+import type { Task, TaskPayload } from "../types";
+import { getUsers } from "../api/user";
 
 
 interface Props {
-    onClose: () => void;
-    onCreate: (task: Partial<Task>) => void;
+    onClose?: () => void;
+    onCreate?: (task: TaskPayload) => void;
+    onUpdate?: (id: string, updates: TaskPayload) => void;
+    taskToEdit?: Task;
 }
-
-export default function CreateTaskModel({onClose,onCreate}:Props){
-    const [form, setForm] = useState({
-        title:"",
-        description:"",
-        status:"Todo" as Task["status"],
-        priority:1
+export default function CreateTaskModel({onClose,onCreate,onUpdate,taskToEdit}:Props){
+    const [form, setForm] = useState<TaskPayload>({
+        title:taskToEdit?.title || "",
+        description:taskToEdit?.description || "",
+        status: taskToEdit?.status || "Todo",
+        priority: taskToEdit?.priority || 1,
+        assignedTo: taskToEdit?.assignedTo?._id || ""
     })
+
+    const [users, setUsers] = useState<{ name: string; email: string; _id: string }[]>([]);
+
+    useEffect(()=>{
+        const fetchusers = async () =>{
+            try{
+                const data = await getUsers()
+                setUsers(data)
+            }
+            catch(error){
+                console.error("Failed to load users", error);
+            }
+        }
+        fetchusers()
+    },[])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
        const { name, value } = e.target;
@@ -25,14 +43,21 @@ export default function CreateTaskModel({onClose,onCreate}:Props){
 
     const handleSubmit = (e: React.FormEvent) =>{
         e.preventDefault()
-        onCreate(form)
-        onClose()
+
+
+        if(taskToEdit && onUpdate){
+            onUpdate(taskToEdit._id,form)
+        }else if(onCreate) {
+            onCreate(form)
+        }
+        
+        if (onClose) onClose()
     }
 
     return (
         <div className="modal-backdrop">
             <div className="modal">
-                <h2>Create Task</h2>
+                <h2>{taskToEdit ? "Edit Task" : "Create Task"}</h2>
                 <form onSubmit={handleSubmit}>
                     <input name="title" value={form.title} onChange={handleChange} placeholder="Title" required />
                     <input name="description" value={form.description} onChange={handleChange} placeholder="Description" />
@@ -46,7 +71,15 @@ export default function CreateTaskModel({onClose,onCreate}:Props){
                         <option value="In Progress">In Progress</option>
                         <option value="Done">Done</option>
                     </select>
-                    <button type="submit">Create</button>
+                    <select name="assignedTo" value={form.assignedTo} onChange={handleChange}>
+                        <option value="">-- Select Assignee --</option>
+                        {
+                            users.map((user) => (
+                                <option key={user._id} value={user._id}>{user.name}</option>
+                            ))
+                        }
+                    </select>
+                    <button type="submit">{taskToEdit ? "Update" : "Create"}</button>
                     <button type="button" onClick={onClose} className="cancel">Cancel</button>
                 </form>
             </div>

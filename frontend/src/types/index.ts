@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
 }
@@ -24,4 +24,12 @@ export interface Task{
   };
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TaskPayload {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: number;
+  assignedTo?: string; // just ObjectId
 }

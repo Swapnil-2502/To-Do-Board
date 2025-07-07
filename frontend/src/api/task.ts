@@ -1,5 +1,5 @@
 import axios from "./axios"
-import type { Task } from "../types"
+import type { Task, TaskPayload } from "../types"
 
 
 const getAuthHeader = () => {
@@ -16,12 +16,12 @@ export const getTasks = async ():Promise<Task[]> => {
     return res.data;
 }
 
-export const createTask = async (task: Partial<Task>):Promise<Task> => {
+export const createTask = async (task: Partial<TaskPayload>):Promise<Task> => {
     const res = await axios.post("/tasks", task, getAuthHeader());
     return res.data;
 }
 
-export const updateTask = async (id:string, updates:Partial<Task>):Promise<Task> => {
+export const updateTask = async (id:string, updates:Partial<TaskPayload>):Promise<Task> => {
     const res = await axios.put(`/tasks/${id}`, updates, getAuthHeader());
     return res.data;
 }

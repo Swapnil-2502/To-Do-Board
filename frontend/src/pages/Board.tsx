@@ -10,6 +10,7 @@ const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
 export default function Board(){
     const [tasks, setTasks] = useState<Task[]>([])
     const [showModal, setShowModal] = useState(false);
+    const [editTask, setEditTask] = useState<Task | null>(null);
 
     useEffect(()=>{
         const fetchTasks = async () => {
@@ -50,9 +51,13 @@ export default function Board(){
     <div className="topbar">
         <h2>Real-Time Kanban</h2>
         <button className="create-btn" onClick={() => setShowModal(true)}>+ Create Task</button>
-            {showModal && (
+            {(showModal || editTask)&& (
                 <CreateTaskModal 
-                    onClose={() => setShowModal(false)}
+                    onClose={() => {
+                        setShowModal(false);
+                        setEditTask(null);
+                        }
+                    }
                     onCreate={async (taskData) => {
                         try {
                             const newTask = await createTask(taskData);
@@ -61,6 +66,15 @@ export default function Board(){
                             console.error("Error creating task", err);
                         }
                     }}
+                    onUpdate={async (id, updates)=>{
+                        try {
+                            const updated = await updateTask(id, updates);
+                            setTasks((prev) => prev.map((t) => (t._id === id ? updated : t)));
+                        } catch (err) {
+                            console.error("Error updating task", err);
+                        }
+                    }}
+                    taskToEdit={editTask ?? undefined}
                 />
             )}
     </div>
@@ -90,8 +104,14 @@ export default function Board(){
                                     e.dataTransfer.setData('taskId',task._id)
                                     e.dataTransfer.setData('fromstatus',task.status)
                                 }}
-                            >
+                            >   
+                                <div className="task-meta">
+                                    <span>Assignee: {task.assignedTo?.name}</span>
+                                    <button onClick={() => setEditTask(task)}>Edit</button>
+                                </div>
+                                
                                 <div className="task-header">
+                                    
                                     <h4>{task.title}</h4>
                                     <span className={`badge p${task.priority}`}>P{task.priority}</span>
                                 </div>
