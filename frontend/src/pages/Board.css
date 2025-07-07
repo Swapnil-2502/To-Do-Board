@@ -94,6 +94,57 @@
 .p2 { background: #ff9800; }
 .p3 { background: #f44336; }
 
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 1000;
+}
+
+.modal {
+  color: black;
+  background:#e3e0e0;
+  padding: 40px;
+  width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal input,
+.modal select {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.modal button {
+  padding: 8px 12px;
+  margin-top: 10px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal button[type="submit"] {
+  background: #4caf50;
+  color: white;
+}
+
+.modal .cancel {
+  background: #ccc;
+}
+
+
 @media (max-width: 768px) {
   .board-container {
     flex-direction: column;

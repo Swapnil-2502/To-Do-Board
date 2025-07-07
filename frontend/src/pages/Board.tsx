@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import "./Board.css"
 import type { Task } from "../types";
-import { getTasks, updateTask } from "../api/task";
+import { createTask, getTasks, updateTask } from "../api/task";
+import CreateTaskModal from "../components/CreateTaskModal";
+
 
 const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
 
 export default function Board(){
     const [tasks, setTasks] = useState<Task[]>([])
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(()=>{
         const fetchTasks = async () => {
@@ -46,7 +49,20 @@ export default function Board(){
     <>
     <div className="topbar">
         <h2>Real-Time Kanban</h2>
-        <button className="create-btn">+ Create Task</button>
+        <button className="create-btn" onClick={() => setShowModal(true)}>+ Create Task</button>
+            {showModal && (
+                <CreateTaskModal 
+                    onClose={() => setShowModal(false)}
+                    onCreate={async (taskData) => {
+                        try {
+                            const newTask = await createTask(taskData);
+                            setTasks((prev) => [...prev, newTask]);
+                        } catch (err) {
+                            console.error("Error creating task", err);
+                        }
+                    }}
+                />
+            )}
     </div>
     <div className="board-container">
         {STATUSES.map((status)=>(
