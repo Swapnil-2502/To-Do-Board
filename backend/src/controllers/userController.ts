@@ -6,6 +6,7 @@ export async function getAllUsers(_req: Request, res: Response){
     const allusers = await users.find()
     
     res.json(allusers.map((user) => ({
+      _id: user._id,
       name: user.name,
       email: user.email
     })));
