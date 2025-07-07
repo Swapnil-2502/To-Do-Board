@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Board.css"
 import type { Task } from "../types";
 import { createTask, getTasks, updateTask } from "../api/task";
 import CreateTaskModal from "../components/CreateTaskModal";
+import { useAuth } from "../hooks/useAuthContext";
 
 
 const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
@@ -11,6 +13,9 @@ export default function Board(){
     const [tasks, setTasks] = useState<Task[]>([])
     const [showModal, setShowModal] = useState(false);
     const [editTask, setEditTask] = useState<Task | null>(null);
+
+    const { user, loading } = useAuth();
+
 
     useEffect(()=>{
         const fetchTasks = async () => {
@@ -24,6 +29,15 @@ export default function Board(){
         }
         fetchTasks();
     },[])
+
+    const navigate = useNavigate()
+
+    if (loading) return <div>Loading...</div>;
+    
+    if (!user) {
+        navigate("/login");
+        return null;
+    }
 
     const handleDrop = async (e: React.DragEvent, newStatus: Task["status"]) => {
         const taskId = e.dataTransfer.getData('taskId')
