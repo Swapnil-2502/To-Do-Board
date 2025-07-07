@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Task } from "../models/tasks";
+import { users } from "../models/users";
 
 export async function getTasks(_req: Request, res: Response){
   try {
@@ -47,3 +48,4 @@ export async function deleteTask (req: Request, res: Response):Promise<any>{
     }   
     
 }
+

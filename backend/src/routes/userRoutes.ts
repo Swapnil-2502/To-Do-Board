@@ -1,15 +1,12 @@
 import express from "express";
 import type { RequestHandler } from "express";
-import { createTask, deleteTask, getTasks, updateTask } from "../controllers/taskController";
 import { requireAuth } from "../middleware/authMiddleware";
+import { getAllUsers } from "../controllers/userController";
 
 const router = express.Router()
 
 router.use(requireAuth as RequestHandler)
 
-router.post("/",createTask)
-router.get("/",getTasks)
-router.put("/:id",updateTask)
-router.delete("/:id",deleteTask)
+router.get("/",getAllUsers)
 
 export default router
