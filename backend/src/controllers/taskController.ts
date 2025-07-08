@@ -49,7 +49,7 @@ export async function updateTask (req: AuthRequest, res: Response):Promise<any>{
     const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     }).populate("assignedTo", "name email");
-
+  
     if (!task) return res.status(404).json({ message: "Task not found" });
 
     if (task) {
@@ -78,6 +78,15 @@ export async function updateTask (req: AuthRequest, res: Response):Promise<any>{
       })
     }
 
+    const currentUser = await users.findById(req.user)
+    if(existingTask?.status !== task.status){
+      await logAction({
+        userId: req.user!,
+        taskId: task._id.toString(),
+        type:"updated",
+        message: `${currentUser?.name} Moved task "${task.title}" from ${existingTask?.status} to ${task.status}`
+      })
+    }
     
   } catch (err) {
     res.status(400).json({ message: "Task update failed", error: err });
