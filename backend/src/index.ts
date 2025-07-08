@@ -1,6 +1,8 @@
 import express from "express"
 import dotenv from "dotenv"
 import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/authRoutes"
 import taskRoutes from "./routes/taskRoutes"
@@ -16,6 +18,38 @@ const PORT = process.env.PORT || 3006;
 app.use(cors());
 app.use(express.json());
 
+const server = http.createServer(app);
+const io = new Server(server,{
+    cors: {
+        origin:"http://localhost:5173",
+        credentials: true,
+        methods:['GET','POST','PUT','DELETE']
+    }
+})
+
+const userSocketMap = new Map<string, string>();
+
+io.on("connection", (socket) => {
+  console.log("🟢 A user connected:", socket.id);
+
+  socket.on("join", (userId: string) => {
+    userSocketMap.set(userId, socket.id); 
+    console.log(`User ${userId} joined with socket ${socket.id}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔴 A user disconnected:", socket.id);
+    for (const [userId, sockId] of userSocketMap.entries()) {
+      if (sockId === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
+    }
+  });
+});
+
+export {io, userSocketMap}
+
 app.use("/api/auth",authRoutes)
 app.use("/api/tasks",taskRoutes)
 app.use("/api/users",userRoutes)
@@ -26,8 +60,9 @@ app.get("/",(req,res)=>{
 })
 
 connectDB().then(()=>{
-        app.listen(PORT,()=>{
-        console.log(`Server started at PORT ${PORT}`)
+        server.listen(PORT,()=>{
+        console.log(`Server + Socket.IO started at PORT ${PORT}`)
     })
 })
+
 
