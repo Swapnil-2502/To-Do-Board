@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import "./Activitylogs.css"
 import { useNavigate } from "react-router-dom";
+import socket from "../socket";
 
 
 interface Action {
@@ -38,6 +39,14 @@ export default function ActivityLog() {
     };
 
     fetchLogs();
+
+    socket.on("log:created", (newLog) => {
+      setLogs((prev) => [newLog, ...prev.slice(0, 19)]);
+    })
+    
+    return () => {
+      socket.off("log:created");
+    };
   }, []);
 
   return (
@@ -51,7 +60,7 @@ export default function ActivityLog() {
         <div className="activity-container">
         <h2>🕒 Recent Activity Logs</h2>
         <ul className="activity-list">
-            {logs.map((log) => (
+            {[...logs].reverse().map((log) => (
             <li key={log._id} className={`log-item log-${log.type}`}>
                 <p>{log.message}</p>
                 <small>
