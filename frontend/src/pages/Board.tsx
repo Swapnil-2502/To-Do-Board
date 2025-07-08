@@ -64,7 +64,12 @@ export default function Board(){
     <>
     <div className="topbar">
         <h2>Real-Time Kanban</h2>
-        <button className="create-btn" onClick={() => setShowModal(true)}>+ Create Task</button>
+        <div style={{display: "flex",gap:"6px"}}>
+            <button className="activity-btn" onClick={() => navigate("/activity")}>
+                    🕒 Activities
+            </button>
+            <button className="create-btn" onClick={() => setShowModal(true)}>+ Create Task</button>
+        </div>
             {(showModal || editTask)&& (
                 <CreateTaskModal 
                     onClose={() => {
