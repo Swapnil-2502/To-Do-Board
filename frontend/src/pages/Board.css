@@ -116,6 +116,20 @@
   text-decoration: underline;
 }
 
+.task-meta .delete-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 4px 6px;
+  margin-left: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.task-meta .delete-btn:hover {
+  background-color: #ff1a1a;
+}
+
 .badge {
   padding: 2px 8px;
   font-size: 12px;

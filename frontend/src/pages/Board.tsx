@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Board.css"
 import type { Task } from "../types";
-import { createTask, getTasks, updateTask } from "../api/task";
+import { createTask, deleteTask, getTasks, updateTask } from "../api/task";
 import CreateTaskModal from "../components/CreateTaskModal";
 import { useAuth } from "../hooks/useAuthContext";
+import socket from "../socket";
 
 
 const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
@@ -28,6 +29,26 @@ export default function Board(){
             }
         }
         fetchTasks();
+
+        socket.on("task:created",(newTask: Task)=>{
+            setTasks((prev)=>[...prev,newTask])
+        })
+
+        socket.on("task:updated", (updatedTask: Task) => {
+            setTasks((prev) =>
+            prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
+            );
+        });
+
+        socket.on("task:deleted", (deletedId: string) => {
+            setTasks((prev) => prev.filter((task) => task._id !== deletedId));
+        });
+
+        return()=>{
+            socket.off("task:created");
+            socket.off("task:updated");
+            socket.off("task:deleted");
+        }
     },[])
 
     const navigate = useNavigate()
@@ -58,6 +79,16 @@ export default function Board(){
             console.error("Failed to update task status", error);
         }
 
+    }
+
+    const handleDelete = async (taskId: string) =>{
+        if (!confirm("Are you sure you want to delete this task?")) return;
+        try{
+            await deleteTask(taskId);
+                setTasks((prev) => prev.filter((task) => task._id !== taskId));
+        } catch (error) {
+            console.error("Failed to delete task", error);
+        }
     }
 
   return (
@@ -126,7 +157,11 @@ export default function Board(){
                             >   
                                 <div className="task-meta">
                                     <span>Assignee: {task.assignedTo?.name}</span>
-                                    <button onClick={() => setEditTask(task)}>Edit</button>
+                                    <div>
+                                        <button onClick={() => setEditTask(task)}>Edit</button>
+                                        <button onClick={() => handleDelete(task._id)} className="delete-btn">Delete</button>
+                                    </div>
+                                   
                                 </div>
                                 
                                 <div className="task-header">

@@ -6,10 +6,24 @@ import { Register } from './pages/Register'
 import Login from './pages/Login'
 import Board from './pages/Board'
 import ActivityLog from './pages/Activitylogs'
+import { useEffect } from 'react'
+import socket from './socket'
 
 
 function App() {
   const {user} = useAuth()
+
+  useEffect(()=>{
+    if(user){
+      socket.connect();
+      socket.emit("join",user._id)
+    }
+
+    return() =>{
+      socket.disconnect()
+    } 
+  },[user])
+
   return (
     <>
       <Routes>
