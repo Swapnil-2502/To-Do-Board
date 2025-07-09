@@ -101,3 +101,87 @@ Built with **Node.js + MongoDB + Express (backend)** and **React + TypeScript (f
 | Delete Task       | `/api/tasks/:id`                  | DELETE | Delete a task                                       | ✅ Yes         |
 | Smart Assign      | `/api/tasks/:id/smart-assign`     | PUT    | Assign task to user with fewest active tasks        | ✅ Yes         |
 | Recent Actions    | `/api/actions`             | GET    | Fetch last 20 actions (activity log)                | ✅ Yes         |
+
+## ✨ Features
+
+### 🔐 Auth
+- User Registration and Login
+- JWT-based session handling
+- Passwords are hashed using `bcrypt`
+
+---
+
+### 📋 Task Management
+- Create, edit, delete, and assign tasks
+- Each task includes:
+  - `title`
+  - `description`
+  - `status` (Todo, In Progress, Done)
+  - `priority` (Low, Medium, High)
+  - `assigned user`
+- Drag and drop tasks between columns on the Kanban board
+
+---
+
+### 🌐 Real-Time Sync
+- All changes (create/edit/delete/assign/drag-drop) are broadcast instantly to all users
+- Built using **Socket.IO** on both frontend and backend
+
+---
+
+### 🧠 Smart Assign
+- One-click **Smart Assign** button on each task
+- Automatically assigns the task to the user with the **fewest active (non-Done) tasks**
+
+---
+
+### ⚔️ Conflict Handling
+- If two users try to edit the same task:
+  - Conflict is detected using the `updatedAt` timestamp
+  - A **Conflict Resolution Modal** appears
+  - Users can choose to:
+    - ✅ **Overwrite** the task
+    - 🔀 **Merge manually** using the modal interface
+
+---
+
+### 🕒 Activity Logs
+- Logs every action:
+  - Create
+  - Edit
+  - Delete
+  - Assign
+  - Drag & drop
+- **Activity Log page** shows the most recent 20 actions
+- Updated in **real-time** using Socket.IO
+
+---
+
+### 💫 UI & UX
+- Fully **responsive**: works great on desktop and mobile
+- Smooth transitions, drag animations, and modals
+- Clean, minimal look
+- **No UI libraries** used (fully custom CSS)
+
+---
+
+## 📜 Smart Assign Logic
+
+- When a user clicks **Smart Assign**:
+  - The backend counts how many active tasks (i.e., not "Done") each user currently has
+  - The task is assigned to the user with the **fewest active tasks**
+  - If there's a tie, the task is assigned to the user who registered **earlier**
+
+---
+
+## ⚔️ Conflict Handling Logic
+
+- When a user tries to save changes to a task:
+  - The client sends the current `updatedAt` timestamp in the request
+  - The backend compares it with the latest timestamp in the database
+- If the task was modified by someone else in the meantime:
+  - Backend responds with a `409 Conflict` and sends back the latest version
+  - Frontend shows a **Conflict Resolution Modal**
+  - The user can then:
+    - ✅ **Overwrite** → sends update with `force: true`
+    - 🔀 **Merge** → manually resolve differences before re-submitting
