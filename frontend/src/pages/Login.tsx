@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
 import { useAuth } from "../hooks/useAuthContext";
 import { AxiosError } from "axios";
+import './Auth.css'
 
 export default function Login() {
   const { login } = useAuth();
@@ -25,13 +26,13 @@ export default function Login() {
             if (error instanceof AxiosError) {
                 setError(error.response?.data?.message || "Registration failed");
             } else {
-                setError("Registration failed");
+                setError("Login failed");
             }
         }
     };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input name="email" value={form.email} onChange={handleChange} placeholder="Email" required />

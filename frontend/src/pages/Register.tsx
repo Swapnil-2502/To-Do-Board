@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuthContext";
 import { registerUser } from "../api/auth";
 import { AxiosError } from "axios";
 import { useState } from "react";
-
+import './Auth.css'
 
 export function Register(){
     const { login } = useAuth();
@@ -32,7 +32,7 @@ export function Register(){
     }
 
     return (
-        <>
+        <div className="auth-container">
             <h2>Register</h2>
             <form onSubmit={handleSubmit}>
                 <input name="name" value={form.name} onChange={handleChange} placeholder="Name" required />
@@ -41,6 +41,6 @@ export function Register(){
                 <button type="submit">Register</button>
             </form>
             {error && <p>{error}</p>}
-        </>
+        </div>
     )
 }
