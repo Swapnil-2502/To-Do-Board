@@ -40,8 +40,19 @@ export default function Board(){
     }
     useEffect(() => {
         if (user?._id) {
-            socket.emit("join", user._id);
+            socket.connect();
+
+            socket.on("connect", () => {
+            console.log("✅ Socket connected:", socket.id);
+            socket.emit("join", user._id); // 
             console.log("✅ Emitted join with userId", user._id);
+            });
+
+            return () => {
+            
+            socket.disconnect();
+            socket.off("connect");
+            };
         }
     }, [user?._id]);
 
