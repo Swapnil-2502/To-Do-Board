@@ -30,3 +30,8 @@ export const deleteTask = async (id: string):Promise<{ message: string }> => {
     const res = await axios.delete(`/tasks/${id}`,getAuthHeader())
     return res.data
 }
+
+export const smartAssignTask = async (taskId: string):Promise<Task> => {
+    const res = await axios.post(`/tasks/${taskId}/smart-assign`,{},getAuthHeader())
+    return res.data;
+}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Board.css"
 import type { Task } from "../types";
-import { createTask, deleteTask, getTasks, updateTask } from "../api/task";
+import { createTask, deleteTask, getTasks, smartAssignTask, updateTask } from "../api/task";
 import CreateTaskModal from "../components/CreateTaskModal";
 import { useAuth } from "../hooks/useAuthContext";
 import socket from "../socket";
@@ -17,6 +17,15 @@ export default function Board(){
 
     const { user, loading } = useAuth();
 
+    const handleSmartAssign = async(taskId: string)=>{
+        try{
+            const updated = await smartAssignTask(taskId);
+            setTasks((prev) => prev.map((t) => (t._id === taskId ? updated: t)))
+        }
+        catch(error){
+            console.error("❌ Failed to smart assign", error);
+        }
+    }
 
     useEffect(()=>{
         const fetchTasks = async () => {
@@ -91,6 +100,8 @@ export default function Board(){
         }
     }
 
+    
+
   return (
     <>
     <div className="topbar">
@@ -160,6 +171,11 @@ export default function Board(){
                                     <div>
                                         <button onClick={() => setEditTask(task)}>Edit</button>
                                         <button onClick={() => handleDelete(task._id)} className="delete-btn">Delete</button>
+                                        {task.status !== "Done" && (
+                                            <button onClick={() => handleSmartAssign(task._id)} className="smart-assign-btn">
+                                            🧠 Smart Assign
+                                            </button>
+                                        )}
                                     </div>
                                    
                                 </div>

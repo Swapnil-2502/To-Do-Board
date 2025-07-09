@@ -126,6 +126,24 @@
   border-radius: 4px;
 }
 
+.task-meta .smart-assign-btn {
+  background-color: #529629;
+  color: white;
+  margin-left: 6px;
+  margin-top: 8px;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.smart-assign-btn:hover {
+  background-color: #04661c;
+}
+
+
 .task-meta .delete-btn:hover {
   background-color: #ff1a1a;
 }
@@ -190,6 +208,7 @@
 .modal .cancel {
   background: #ccc;
 }
+
 
 
 @media (max-width: 768px) {
