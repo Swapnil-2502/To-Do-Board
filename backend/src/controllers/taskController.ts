@@ -20,6 +20,7 @@ export async function createTask(req: AuthRequest,res: Response):Promise<any>{
 
     try{
         const task = await Task.create({ title, description, assignedTo, status, priority });
+        const populatedTask = await Task.findById(task._id).populate("assignedTo", "name email");
 
         const assigneedetails = await users.findById(assignedTo)
         await logAction(
@@ -30,12 +31,12 @@ export async function createTask(req: AuthRequest,res: Response):Promise<any>{
             message:`Created task "${title} and assigned to ${assigneedetails ? assigneedetails.name : "Unknown User"}"`
           }) 
         
-        for (const [userId, socketId] of userSocketMap.entries()) {
-          if (userId !== req.user?.toString()) {
-            io.to(socketId).emit("task:created", task);
-          }
+          for (const [userId, socketId] of userSocketMap.entries()) {
+            if (userId !== req.user?.toString()) {
+              io.to(socketId).emit("task:created", populatedTask);
+            }
         }
-        res.status(201).json(task);
+        res.status(201).json(populatedTask);
     }
     catch(error){
         res.status(400).json({ message: "Task creation failed", error: error });
@@ -57,7 +58,7 @@ export async function updateTask (req: AuthRequest, res: Response):Promise<any>{
     }
     res.json(task);
 
-    if(req.body.title !== existingTask?.title){
+    if(task.title !== existingTask?.title){
         await logAction(
         {
           userId: req.user!, 
@@ -83,7 +84,7 @@ export async function updateTask (req: AuthRequest, res: Response):Promise<any>{
       await logAction({
         userId: req.user!,
         taskId: task._id.toString(),
-        type:"updated",
+        type:"moved",
         message: `${currentUser?.name} Moved task "${task.title}" from ${existingTask?.status} to ${task.status}`
       })
     }
@@ -117,3 +118,74 @@ export async function deleteTask (req: AuthRequest, res: Response):Promise<any>{
     
 }
 
+export async function smartAssignTask(req: AuthRequest, res: Response):Promise<any> {
+    try{
+      const taskId = req.params.id;
+      const taskDetails = await Task.findById(taskId)
+  
+      if(taskDetails?.status === "Done") return res.status(400).json({ message: "This task has Done status and cannot be assigned to anyone" });
+
+      const allusers = await users.find()
+
+      const taskCounts = await Task.aggregate([
+          {
+            $match: {
+              assignedTo: { $ne: null },
+              status: { $in: ["Todo", "In Progress"] },
+            },
+          },
+          {
+            $group: {
+              _id: "$assignedTo",
+              count: { $sum: 1 },
+            },
+          },
+      ]);
+
+      //console.log("taskCounts->", taskCounts)
+
+      const userTaskMap: Record<string, number> = {};
+        taskCounts.forEach((entry) => {
+          userTaskMap[entry._id.toString()] = entry.count;
+      });
+
+      //console.log("userTaskMap-> ",userTaskMap)
+
+      let selectedUser = null;
+      let minTasks = Infinity;
+
+      for(let user of allusers){
+        const count = userTaskMap[user._id.toString()] || 0
+        if(count < minTasks){
+          minTasks = count
+          selectedUser = user
+        }
+      }
+
+      if (!selectedUser) {
+        return res.status(400).json({ message: "No users found to assign." });
+      }
+
+      const updatedTask = await Task.findByIdAndUpdate(
+        taskId,
+        { assignedTo: selectedUser._id },
+        { new: true }
+      ).populate("assignedTo", "name email");
+
+      await logAction({
+        userId: req.user!,
+        taskId: taskId,
+        type: "updated",
+        message: `${selectedUser.name} was smart-assigned to task "${updatedTask?.title}"`,
+      });
+
+      io.emit("task:updated", updatedTask);
+
+      res.json(updatedTask);
+
+    }
+    catch(error){
+      console.error("Smart Assign failed", error);
+      res.status(500).json({ message: "Smart Assign failed." });
+    }
+}
