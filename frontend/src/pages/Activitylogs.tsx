@@ -3,6 +3,7 @@ import axios from "../api/axios";
 import "./Activitylogs.css"
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import LogoutComponent from "../components/LogoutComponent";
 
 
 interface Action {
@@ -56,6 +57,7 @@ export default function ActivityLog() {
             <button className="back-btn" onClick={() => navigate("/board")}>
                 🔙 Go to Dashboard
             </button>
+            <LogoutComponent />
         </div>
         <div className="activity-container">
         <h2>🕒 Recent Activity Logs</h2>

@@ -8,6 +8,7 @@ import { useAuth } from "../hooks/useAuthContext";
 import socket from "../socket";
 import ConflictModal from "../components/ConflictModal"; 
 import type { AxiosError } from "axios";
+import LogoutComponent from "../components/LogoutComponent";
 
 
 
@@ -128,6 +129,7 @@ export default function Board(){
                     🕒 Activities
             </button>
             <button className="create-btn" onClick={() => setShowModal(true)}>+ Create Task</button>
+            <LogoutComponent />
         </div>
             {(showModal || editTask)&& (
                 <CreateTaskModal 

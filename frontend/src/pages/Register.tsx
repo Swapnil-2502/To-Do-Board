@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/useAuthContext";
 import { registerUser } from "../api/auth";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import './Auth.css'
 
 export function Register(){
@@ -40,6 +41,13 @@ export function Register(){
                 <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" required />
                 <button type="submit">Register</button>
             </form>
+            <p>
+                Already have an account! {" "}
+                <Link to="/login" style={{ color: "#007bff", textDecoration: "none", fontWeight: 500 }}>
+                    Login
+                </Link>
+            </p>
+            
             {error && <p>{error}</p>}
         </div>
     )

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
 import { useAuth } from "../hooks/useAuthContext";
 import { AxiosError } from "axios";
+import { Link } from "react-router-dom";
 import './Auth.css'
 
 export default function Login() {
@@ -39,6 +40,12 @@ export default function Login() {
         <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" required />
         <button type="submit">Login</button>
       </form>
+      <p>
+        Don't have an account?{" "}
+        <Link to="/register" style={{ color: "#007bff", textDecoration: "none", fontWeight: 500 }}>
+          Register
+        </Link>
+      </p>
       {error && <p>{error}</p>}
     </div>
   );
