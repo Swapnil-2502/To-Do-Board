@@ -10,7 +10,7 @@ Built with **Node.js + MongoDB + Express (backend)** and **React + TypeScript (f
 
 - 🚀 **Frontend (Vercel):** [https://your-frontend-url.vercel.app](https://your-frontend-url.vercel.app)
 - ⚙️ **Backend (Railway):** [https://your-backend-url.railway.app](https://your-backend-url.railway.app)
-- 🎥 **Walkthrough Video:** [https://your-video-link.com](https://your-video-link.com)
+- 🎥 **Walkthrough Video:** [https://drive.google.com/file/d/1wJLtyZB46zHYIv8rZjnLBfcYCWmFWS-U/view?usp=sharing](https://your-video-link.com)
 
 
 
