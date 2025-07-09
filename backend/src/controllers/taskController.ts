@@ -43,56 +43,80 @@ export async function createTask(req: AuthRequest,res: Response):Promise<any>{
     }
 }
 
-export async function updateTask (req: AuthRequest, res: Response):Promise<any>{
-
+export async function updateTask (req: AuthRequest, res: Response): Promise<any> {
   try {
+    const incomingUpdatedAt = req.body.updatedAt;
+
+    // Step 1: Validate timestamps for conflict
+    const currentTask = await Task.findById(req.params.id);
+    if (!currentTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const currentTimestamp = new Date(currentTask.updatedAt).getTime();
+    const incomingTimestamp = new Date(incomingUpdatedAt).getTime();
+
+    if (incomingTimestamp < currentTimestamp) {
+      return res.status(409).json({
+        message: "Conflict detected",
+        serverVersion: currentTask,
+      });
+    }
+
+    // Step 2: Save the pre-update state for logging comparison
     const existingTask = await Task.findById(req.params.id);
+
+    // Step 3: Perform the update
     const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     }).populate("assignedTo", "name email");
-  
-    if (!task) return res.status(404).json({ message: "Task not found" });
 
-    if (task) {
-      io.emit("task:updated", task); 
+    if (!task) {
+      return res.status(404).json({ message: "Task not found after update" });
     }
+
+    // Step 4: Emit socket event to others
+    io.emit("task:updated", task); 
+
+    // Step 5: Send response back
     res.json(task);
 
-    if(task.title !== existingTask?.title){
-        await logAction(
-        {
-          userId: req.user!, 
-          taskId: task._id.toString(), 
-          type:"updated",
-          message:`Updated task from "${existingTask?.title}" to "${task.title}"`
-        })
-    }
-    
-    const assigneedetails = await users.findById(req.body.assignedTo)
-    
-    if(req.body.assignedTo && req.body.assignedTo !== existingTask?.assignedTo?.toString()){
+    // Step 6: Log actions
+    if (task.title !== existingTask?.title) {
       await logAction({
         userId: req.user!,
         taskId: task._id.toString(),
-        type:"updated",
-        message: `Assigned task "${existingTask?.title}" to ${assigneedetails ? assigneedetails.name : "Unknown User"}`
-      })
+        type: "updated",
+        message: `Updated task from "${existingTask?.title}" to "${task.title}"`,
+      });
     }
 
-    const currentUser = await users.findById(req.user)
-    if(existingTask?.status !== task.status){
+    if (req.body.assignedTo && req.body.assignedTo !== existingTask?.assignedTo?.toString()) {
+      const assigneeDetails = await users.findById(req.body.assignedTo);
       await logAction({
         userId: req.user!,
         taskId: task._id.toString(),
-        type:"moved",
-        message: `${currentUser?.name} Moved task "${task.title}" from ${existingTask?.status} to ${task.status}`
-      })
+        type: "updated",
+        message: `Assigned task "${task.title}" to ${assigneeDetails?.name || "Unknown User"}`,
+      });
     }
-    
+
+    if (task.status !== existingTask?.status) {
+      const currentUser = await users.findById(req.user);
+      await logAction({
+        userId: req.user!,
+        taskId: task._id.toString(),
+        type: "moved",
+        message: `${currentUser?.name || "Someone"} moved task "${task.title}" from ${existingTask?.status} to ${task.status}`,
+      });
+    }
+
   } catch (err) {
+    console.error("Update failed:", err);
     res.status(400).json({ message: "Task update failed", error: err });
   }
-};
+}
+
 
 export async function deleteTask (req: AuthRequest, res: Response):Promise<any>{
     try{
