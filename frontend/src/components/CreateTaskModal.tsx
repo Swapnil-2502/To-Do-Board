@@ -15,7 +15,8 @@ export default function CreateTaskModel({onClose,onCreate,onUpdate,taskToEdit}:P
         description:taskToEdit?.description || "",
         status: taskToEdit?.status || "Todo",
         priority: taskToEdit?.priority || 1,
-        assignedTo: taskToEdit?.assignedTo?._id || ""
+        assignedTo: taskToEdit?.assignedTo?._id || "",
+        updatedAt: ""
     })
 
     const [users, setUsers] = useState<{ name: string; email: string; _id: string }[]>([]);

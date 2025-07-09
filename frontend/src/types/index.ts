@@ -31,5 +31,7 @@ export interface TaskPayload {
   description: string;
   status: TaskStatus;
   priority: number;
-  assignedTo?: string; // just ObjectId
+  assignedTo?: string; 
+  updatedAt: string;
+  force?: boolean;
 }

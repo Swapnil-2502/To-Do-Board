@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Board.css"
-import type { Task } from "../types";
+import type { Task, TaskPayload } from "../types";
 import { createTask, deleteTask, getTasks, smartAssignTask, updateTask } from "../api/task";
 import CreateTaskModal from "../components/CreateTaskModal";
 import { useAuth } from "../hooks/useAuthContext";
 import socket from "../socket";
+import ConflictModal from "../components/ConflictModal"; 
+import type { AxiosError } from "axios";
+
 
 
 const STATUSES: Task["status"][] = ["Todo", "In Progress", "Done"] as const;
@@ -14,6 +17,16 @@ export default function Board(){
     const [tasks, setTasks] = useState<Task[]>([])
     const [showModal, setShowModal] = useState(false);
     const [editTask, setEditTask] = useState<Task | null>(null);
+    const [originalUpdatedAt, setOriginalUpdatedAt] = useState<string | null>(null);
+
+    const [showConflictModal, setShowConflictModal] = useState(false);
+    const [conflictData, setConflictData] = useState<{
+    server: Task;
+    local: TaskPayload;
+    id: string;
+    } | null>(null);
+
+
 
     const { user, loading } = useAuth();
 
@@ -129,12 +142,32 @@ export default function Board(){
                     }}
                     onUpdate={async (id, updates)=>{
                         try {
-                            const updated = await updateTask(id, updates);
+                            const originalTask = tasks.find((t) => t._id === id);
+                            if (!originalTask) return;
+
+                            const updated = await updateTask(id, {
+                                ...updates,
+                                ...(originalUpdatedAt ? { updatedAt: originalUpdatedAt } : {}),
+                            });
                             setTasks((prev) => prev.map((t) => (t._id === id ? updated : t)));
                         } catch (err) {
+                                const axiosErr = err as AxiosError<{ serverVersion: Task }>;
+
+                                if (axiosErr.response?.status === 409) {
+                                    const server = axiosErr.response.data.serverVersion;
+                                    setConflictData({
+                                    id,
+                                    server,
+                                    local: updates,
+                                    });
+                                    setShowModal(false); // hide the modal
+                                    setShowConflictModal(true);
+                                    return;
+                                }
+                            
                             console.error("Error updating task", err);
                         }
-                    }}
+                        }}
                     taskToEdit={editTask ?? undefined}
                 />
             )}
@@ -169,7 +202,10 @@ export default function Board(){
                                 <div className="task-meta">
                                     <span>Assignee: {task.assignedTo?.name}</span>
                                     <div>
-                                        <button onClick={() => setEditTask(task)}>Edit</button>
+                                        <button onClick={() =>{
+                                            setEditTask(task);
+                                            setOriginalUpdatedAt(task.updatedAt);
+                                        }}>Edit</button>
                                         <button onClick={() => handleDelete(task._id)} className="delete-btn">Delete</button>
                                         {task.status !== "Done" && (
                                             <button onClick={() => handleSmartAssign(task._id)} className="smart-assign-btn">
@@ -193,6 +229,40 @@ export default function Board(){
             </div>  
         ))}
     </div>
+        {showConflictModal && conflictData && (
+            <ConflictModal
+                serverVersion={conflictData.server}
+                localVersion={conflictData.local}
+                onCancel={() => {
+                setConflictData(null);
+                setShowConflictModal(false);
+                }}
+                onOverwrite={async () => {
+                try {
+                    const updated = await updateTask(conflictData.id, {
+                    ...conflictData.local,
+                    force: true, // backend will skip timestamp check
+                    });
+
+                    setTasks((prev) =>
+                    prev.map((t) => (t._id === conflictData.id ? updated : t))
+                    );
+
+                    setShowConflictModal(false);
+                    setConflictData(null);
+                } catch (err) {
+                    console.error("Failed to overwrite during conflict", err);
+                }
+                }}
+                onMerge={() => {
+                setShowConflictModal(false);
+                setShowModal(true); // re-open modal so user can manually resolve
+                setEditTask(conflictData?.server ?? null); // optional: start with server version
+                setOriginalUpdatedAt(conflictData?.server.updatedAt ?? null);
+                }}
+            />
+        )}
+
     </>
   )
 }
