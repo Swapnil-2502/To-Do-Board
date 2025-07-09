@@ -60,7 +60,7 @@ export default function ActivityLog() {
         <div className="activity-container">
         <h2>🕒 Recent Activity Logs</h2>
         <ul className="activity-list">
-            {[...logs].reverse().map((log) => (
+            {logs.map((log) => (
             <li key={log._id} className={`log-item log-${log.type}`}>
                 <p>{log.message}</p>
                 <small>
