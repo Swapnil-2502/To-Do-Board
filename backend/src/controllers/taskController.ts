@@ -28,7 +28,7 @@ export async function createTask(req: AuthRequest,res: Response):Promise<any>{
             userId: req.user!, 
             taskId: task._id.toString(), 
             type:"created",
-            message:`Created task "${title} and assigned to ${assigneedetails ? assigneedetails.name : "Unknown User"}"`
+            message:`Created task "${title}" and assigned to ${assigneedetails ? assigneedetails.name : "Unknown User"}"`
           }) 
         
           for (const [userId, socketId] of userSocketMap.entries()) {

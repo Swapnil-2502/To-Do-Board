@@ -26,8 +26,6 @@ export default function Board(){
     id: string;
     } | null>(null);
 
-
-
     const { user, loading } = useAuth();
 
     const handleSmartAssign = async(taskId: string)=>{
@@ -39,6 +37,12 @@ export default function Board(){
             console.error("❌ Failed to smart assign", error);
         }
     }
+    useEffect(() => {
+        if (user?._id) {
+            socket.emit("join", user._id);
+            console.log("✅ Emitted join with userId", user._id);
+        }
+    }, [user?._id]);
 
     useEffect(()=>{
         const fetchTasks = async () => {
