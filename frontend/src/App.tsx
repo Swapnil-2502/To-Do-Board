@@ -12,11 +12,11 @@ import socket from './socket'
 
 function App() {
   const {user} = useAuth()
-
+  
   useEffect(()=>{
     if(user){
       socket.connect();
-      socket.emit("join",user.id)
+      socket.emit("join",user._id)
     }
 
     return() =>{

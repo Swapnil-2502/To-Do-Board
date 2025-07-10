@@ -23,13 +23,23 @@ export const AuthProvider = ({children}:{children: React.ReactNode}) => {
         savedUser !== "undefined" &&
         savedToken &&
         savedToken !== "undefined") {
-            setUser(JSON.parse(savedUser));
+            const parsed = JSON.parse(savedUser);
+
+            // 🧠 Normalize user object
+            const normalizedUser: User = {
+                _id: parsed._id || parsed.id,
+                name: parsed.name,
+                email: parsed.email,
+            };
+
+            setUser(normalizedUser);
             setToken(savedToken);
         }
         setLoading(false)
     },[])
 
     const login = (user: User, token: string) => {
+        console.log("User from login->",user)
         setUser(user)
         setToken(token)
         localStorage.setItem('user',JSON.stringify(user))

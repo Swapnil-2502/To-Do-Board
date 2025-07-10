@@ -19,7 +19,7 @@ export default function CreateTaskModel({onClose,onCreate,onUpdate,taskToEdit}:P
         updatedAt: ""
     })
 
-    const [users, setUsers] = useState<{ name: string; email: string; id: string }[]>([]);
+    const [users, setUsers] = useState<{ name: string; email: string; _id: string }[]>([]);
 
     useEffect(()=>{
         const fetchusers = async () =>{
@@ -76,7 +76,7 @@ export default function CreateTaskModel({onClose,onCreate,onUpdate,taskToEdit}:P
                         <option value="">-- Select Assignee --</option>
                         {
                             users.map((user) => (
-                                <option key={user.id} value={user.id}>{user.name}</option>
+                                <option key={user._id} value={user._id}>{user.name}</option>
                             ))
                         }
                     </select>
