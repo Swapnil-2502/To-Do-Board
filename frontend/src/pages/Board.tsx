@@ -28,7 +28,6 @@ export default function Board(){
     } | null>(null);
 
     const { user, loading } = useAuth();
-    console.log("user->",user)
 
     const handleSmartAssign = async(taskId: string)=>{
         try{
