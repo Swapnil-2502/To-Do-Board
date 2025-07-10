@@ -16,7 +16,7 @@ function App() {
   useEffect(()=>{
     if(user){
       socket.connect();
-      socket.emit("join",user._id)
+      socket.emit("join",user.id)
     }
 
     return() =>{

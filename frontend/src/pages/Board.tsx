@@ -28,6 +28,7 @@ export default function Board(){
     } | null>(null);
 
     const { user, loading } = useAuth();
+    console.log("user->",user)
 
     const handleSmartAssign = async(taskId: string)=>{
         try{
@@ -38,23 +39,6 @@ export default function Board(){
             console.error("❌ Failed to smart assign", error);
         }
     }
-    useEffect(() => {
-        if (user?._id) {
-            socket.connect();
-
-            socket.on("connect", () => {
-            console.log("✅ Socket connected:", socket.id);
-            socket.emit("join", user._id); // 
-            console.log("✅ Emitted join with userId", user._id);
-            });
-
-            return () => {
-            
-            socket.disconnect();
-            socket.off("connect");
-            };
-        }
-    }, [user?._id]);
 
     useEffect(()=>{
         const fetchTasks = async () => {
