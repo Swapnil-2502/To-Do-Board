@@ -8,8 +8,8 @@ Built with **Node.js + MongoDB + Express (backend)** and **React + TypeScript (f
 
 ## 🔗 Live Demo Links
 
-- 🚀 **Frontend (Vercel):** [https://your-frontend-url.vercel.app](https://your-frontend-url.vercel.app)
-- ⚙️ **Backend (Railway):** [https://your-backend-url.railway.app](https://your-backend-url.railway.app)
+- 🚀 **Frontend (Vercel):** [https://to-do-board-alpha.vercel.app/login](https://to-do-board-alpha.vercel.app/login)
+- ⚙️ **Backend (Railway):** [https://to-do-board-production.up.railway.app/](https://to-do-board-production.up.railway.app/api/)
 - 🎥 **Walkthrough Video:** [https://drive.google.com/file/d/1wJLtyZB46zHYIv8rZjnLBfcYCWmFWS-U/view?usp=sharing](https://your-video-link.com)
 
 
