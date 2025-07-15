@@ -25,7 +25,7 @@ export default function Login() {
         } 
         catch (error: unknown) {
             if (error instanceof AxiosError) {
-                setError(error.response?.data?.message || "Registration failed");
+                setError(error.response?.data?.message || "Login failed");
             } else {
                 setError("Login failed");
             }
